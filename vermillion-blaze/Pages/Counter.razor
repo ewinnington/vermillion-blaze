@@ -1,0 +1,51 @@
+﻿@using Microsoft.CodeAnalysis.CSharp.Scripting;
+@using IronPython.Hosting;
+@using System.Text;
+@using System.IO;
+@page "/counter"
+
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+<p>@Output</p>
+
+<input name="codeinput" type="text" @bind-value=@SourceCode />
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<input name="codeinputPy" type="text" @bind-value=@SourceCodePy />
+<button class="btn btn-primary" @onclick="IncrementCountPy">Click me</button>
+
+
+@code {
+    private int currentCount = 0;
+    public string SourceCode { get; set; }
+    public string SourceCodePy { get; set; }
+    public string Output { get; set; }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+
+        //note: we block here, because we are in Main method, normally we could await as scripting APIs are async
+        Output = CSharpScript.EvaluateAsync<int>(SourceCode).Result.ToString();
+    }
+    private void IncrementCountPy()
+    {
+        currentCount++;
+
+        var engine = Python.CreateEngine();
+        var scope = engine.CreateScope();
+        var source = engine.CreateScriptSourceFromString(SourceCodePy, Microsoft.Scripting.SourceCodeKind.Statements);
+        var compiled = source.Compile();
+
+        MemoryStream stream = new MemoryStream();      
+        engine.Runtime.IO.SetOutput(stream, Console.OutputEncoding); // (outputStream, outputStreamWriter);
+        engine.Runtime.IO.SetErrorOutput(stream, Console.OutputEncoding); 
+
+        var result = compiled.Execute(scope);
+       
+        StreamReader reader = new StreamReader( stream );
+
+        Output = reader.ReadToEnd();
+    }
+}

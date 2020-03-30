@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/ConsoleApp1/bin/Debug/netcoreapp3.1
+/ConsoleApp1/obj
+/vermillion-blaze/.vs/vermillion-blaze
+/vermillion-blaze/bin/Debug/netcoreapp3.1
+/vermillion-blaze/obj
+/webasm/bin/Debug/netstandard2.1
+/webasm/obj
